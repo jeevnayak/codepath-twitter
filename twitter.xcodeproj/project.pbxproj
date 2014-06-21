@@ -19,6 +19,11 @@
 		13A672B21953F87500D13274 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13A6729A1953F87500D13274 /* UIKit.framework */; };
 		13A672BA1953F87500D13274 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 13A672B81953F87500D13274 /* InfoPlist.strings */; };
 		13A672BC1953F87500D13274 /* twitterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 13A672BB1953F87500D13274 /* twitterTests.m */; };
+		13A672C81953F90800D13274 /* TwitterClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 13A672C71953F90800D13274 /* TwitterClient.m */; };
+		13A672CD1953F94200D13274 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 13A672CB1953F94200D13274 /* LoginViewController.m */; };
+		13A672CE1953F94200D13274 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13A672CC1953F94200D13274 /* LoginViewController.xib */; };
+		13A672D11954027500D13274 /* NSURL+DictionaryFromQueryString.m in Sources */ = {isa = PBXBuildFile; fileRef = 13A672D01954027500D13274 /* NSURL+DictionaryFromQueryString.m */; };
+		A4CC88793664402293A29B0C /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FF43DED535946FE804797FE /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +53,15 @@
 		13A672B71953F87500D13274 /* twitterTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "twitterTests-Info.plist"; sourceTree = "<group>"; };
 		13A672B91953F87500D13274 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		13A672BB1953F87500D13274 /* twitterTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = twitterTests.m; sourceTree = "<group>"; };
+		13A672C61953F90800D13274 /* TwitterClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwitterClient.h; sourceTree = "<group>"; };
+		13A672C71953F90800D13274 /* TwitterClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TwitterClient.m; sourceTree = "<group>"; };
+		13A672CA1953F94200D13274 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
+		13A672CB1953F94200D13274 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
+		13A672CC1953F94200D13274 /* LoginViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginViewController.xib; sourceTree = "<group>"; };
+		13A672CF1954027400D13274 /* NSURL+DictionaryFromQueryString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+DictionaryFromQueryString.h"; sourceTree = "<group>"; };
+		13A672D01954027500D13274 /* NSURL+DictionaryFromQueryString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+DictionaryFromQueryString.m"; sourceTree = "<group>"; };
+		76AE301B8990409E86F23B46 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
+		7FF43DED535946FE804797FE /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +72,7 @@
 				13A672991953F87500D13274 /* CoreGraphics.framework in Frameworks */,
 				13A6729B1953F87500D13274 /* UIKit.framework in Frameworks */,
 				13A672971953F87500D13274 /* Foundation.framework in Frameworks */,
+				A4CC88793664402293A29B0C /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +96,7 @@
 				13A672B51953F87500D13274 /* twitterTests */,
 				13A672951953F87500D13274 /* Frameworks */,
 				13A672941953F87500D13274 /* Products */,
+				76AE301B8990409E86F23B46 /* Pods.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -100,6 +116,7 @@
 				13A672981953F87500D13274 /* CoreGraphics.framework */,
 				13A6729A1953F87500D13274 /* UIKit.framework */,
 				13A672AF1953F87500D13274 /* XCTest.framework */,
+				7FF43DED535946FE804797FE /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -107,6 +124,9 @@
 		13A6729C1953F87500D13274 /* twitter */ = {
 			isa = PBXGroup;
 			children = (
+				13A672D21954029800D13274 /* Categories */,
+				13A672C91953F92B00D13274 /* View Controllers */,
+				13A672C51953F88300D13274 /* API */,
 				13A672A51953F87500D13274 /* AppDelegate.h */,
 				13A672A61953F87500D13274 /* AppDelegate.m */,
 				13A672A81953F87500D13274 /* Images.xcassets */,
@@ -144,6 +164,34 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		13A672C51953F88300D13274 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				13A672C61953F90800D13274 /* TwitterClient.h */,
+				13A672C71953F90800D13274 /* TwitterClient.m */,
+			);
+			name = API;
+			sourceTree = "<group>";
+		};
+		13A672C91953F92B00D13274 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				13A672CA1953F94200D13274 /* LoginViewController.h */,
+				13A672CB1953F94200D13274 /* LoginViewController.m */,
+				13A672CC1953F94200D13274 /* LoginViewController.xib */,
+			);
+			name = "View Controllers";
+			sourceTree = "<group>";
+		};
+		13A672D21954029800D13274 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				13A672CF1954027400D13274 /* NSURL+DictionaryFromQueryString.h */,
+				13A672D01954027500D13274 /* NSURL+DictionaryFromQueryString.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -151,9 +199,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13A672BF1953F87600D13274 /* Build configuration list for PBXNativeTarget "twitter" */;
 			buildPhases = (
+				209588A793294C528FB7C96D /* Check Pods Manifest.lock */,
 				13A6728F1953F87500D13274 /* Sources */,
 				13A672901953F87500D13274 /* Frameworks */,
 				13A672911953F87500D13274 /* Resources */,
+				91346DED65A348D78D0E6FC0 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -221,6 +271,7 @@
 			files = (
 				13A672A11953F87500D13274 /* InfoPlist.strings in Resources */,
 				13A672A91953F87500D13274 /* Images.xcassets in Resources */,
+				13A672CE1953F94200D13274 /* LoginViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,13 +285,49 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		209588A793294C528FB7C96D /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		91346DED65A348D78D0E6FC0 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		13A6728F1953F87500D13274 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13A672CD1953F94200D13274 /* LoginViewController.m in Sources */,
 				13A672A71953F87500D13274 /* AppDelegate.m in Sources */,
+				13A672C81953F90800D13274 /* TwitterClient.m in Sources */,
 				13A672A31953F87500D13274 /* main.m in Sources */,
+				13A672D11954027500D13274 /* NSURL+DictionaryFromQueryString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +441,7 @@
 		};
 		13A672C01953F87600D13274 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 76AE301B8990409E86F23B46 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -367,6 +455,7 @@
 		};
 		13A672C11953F87600D13274 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 76AE301B8990409E86F23B46 /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -437,6 +526,7 @@
 				13A672C11953F87600D13274 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		13A672C21953F87600D13274 /* Build configuration list for PBXNativeTarget "twitterTests" */ = {
 			isa = XCConfigurationList;
@@ -445,6 +535,7 @@
 				13A672C41953F87600D13274 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

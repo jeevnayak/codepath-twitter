@@ -7,13 +7,18 @@
 //
 
 #import "AppDelegate.h"
+#import "LoginViewController.h"
+#import "TwitterClient.h"
+#import "NSURL+DictionaryFromQueryString.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
+
+    self.window.rootViewController = [[LoginViewController alloc] init];
+
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;
@@ -44,6 +49,19 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation {
+    if ([url.host isEqualToString:@"oauth_request_token"]) {
+        NSDictionary *parameters = [url dictionaryFromQueryString];
+        if (parameters[@"oauth_token"] && parameters[@"oauth_verifier"]) {
+            [[TwitterClient instance] finishLoginWithRequestURL:url];
+        }
+    }
+    return YES;
 }
 
 @end
