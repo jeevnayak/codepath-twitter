@@ -8,10 +8,11 @@
 
 #import "LoginViewController.h"
 #import "TwitterClient.h"
+#import "TimelineViewController.h"
 
 @interface LoginViewController ()
 
-- (IBAction)onLoginButtonClick:(id)sender;
+- (IBAction)onLoginButton:(id)sender;
 
 @end
 
@@ -21,7 +22,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onLoginComplete) name:@"LoginCompleteNotification" object:nil];
     }
     return self;
 }
@@ -38,8 +39,19 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)onLoginButtonClick:(id)sender {
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (IBAction)onLoginButton:(id)sender {
     [[TwitterClient instance] startLogin];
+}
+
+- (void)onLoginComplete {
+    TimelineViewController *vc = [[TimelineViewController alloc] init];
+    UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:vc];
+    nvc.navigationBar.translucent = NO;
+    [self presentViewController:nvc animated:YES completion:nil];
 }
 
 @end

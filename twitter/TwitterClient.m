@@ -7,6 +7,10 @@
 //
 
 #import "TwitterClient.h"
+#import "User.h"
+#import <MTLJSONAdapter.h>
+
+static NSString * const kLoginCompleteNotificationName = @"LoginCompleteNotification";
 
 @implementation TwitterClient
 
@@ -25,7 +29,7 @@
                         callbackURL:[NSURL URLWithString:@"acoupletweets://oauth_request_token"]
                               scope:nil
                             success:^(BDBOAuthToken *requestToken) {
-                                // open the browser so the user can log in
+                                // open the browser so the user can sign in
                                 NSString *authURL = [NSString stringWithFormat:@"https://api.twitter.com/oauth/authorize?oauth_token=%@", requestToken.token];
                                 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:authURL]];
                             } failure:^(NSError *error) {
@@ -40,12 +44,55 @@
                       requestToken:[BDBOAuthToken tokenWithQueryString:requestURL.query]
                            success:^(BDBOAuthToken *accessToken) {
                                [[TwitterClient instance].requestSerializer saveAccessToken:accessToken];
-                               NSLog(@"got access token");
+                               [self currentUserWithSuccess:^(AFHTTPRequestOperation *operation, User *currentUser) {
+                                   // set the current user and notify the UI
+                                   [User setCurrentUser:currentUser];
+                                   [[NSNotificationCenter defaultCenter] postNotificationName:kLoginCompleteNotificationName object:self];
+                               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                   // TODO: notify UI
+                                   NSLog(@"failed user info");
+                               }];
+                               [User setCurrentUser:[[User alloc] init]];
                            }
                            failure:^(NSError *error) {
                                // TODO: notify UI
                                NSLog(@"failed access token");
                            }];
+}
+
+- (void)logout {
+    [self deauthorize];
+    [User setCurrentUser:nil];
+}
+
+- (void)homeTimelineWithSuccess:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self GET:@"1.1/statuses/home_timeline.json" parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSArray *tweets = [MTLJSONAdapter modelsOfClass:[Tweet class] fromJSONArray:responseObject error:nil];
+        success(operation, tweets);
+    } failure:failure];
+}
+
+- (void)postTweet:(NSString *)tweetText success:(void (^)(AFHTTPRequestOperation *operation, Tweet *tweet))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self POST:@"1.1/statuses/update.json" parameters:@{@"status": tweetText} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        Tweet *tweet = [MTLJSONAdapter modelOfClass:[Tweet class] fromJSONDictionary:responseObject error:nil];
+        success(operation, tweet);
+    } failure:failure];
+}
+
+- (void)postReply:(NSString *)tweetText toTweetWithIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, Tweet *tweet))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    NSLog(@"replying to %@", idStr);
+    [self POST:@"1.1/statuses/update.json" parameters:@{@"status": tweetText, @"in_reply_to_status_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"resp %@", responseObject);
+        Tweet *tweet = [MTLJSONAdapter modelOfClass:[Tweet class] fromJSONDictionary:responseObject error:nil];
+        success(operation, tweet);
+    } failure:failure];
+}
+
+- (void)currentUserWithSuccess:(void (^)(AFHTTPRequestOperation *operation, User *currentUser))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self GET:@"1.1/account/verify_credentials.json" parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        User *currentUser = [MTLJSONAdapter modelOfClass:[User class] fromJSONDictionary:responseObject error:nil];
+        success(operation, currentUser);
+    } failure:failure];
 }
 
 @end

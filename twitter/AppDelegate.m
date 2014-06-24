@@ -8,16 +8,32 @@
 
 #import "AppDelegate.h"
 #import "LoginViewController.h"
+#import "TimelineViewController.h"
 #import "TwitterClient.h"
 #import "NSURL+DictionaryFromQueryString.h"
+#import "User.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // set styles for status bar and nav bar
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [[UINavigationBar appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
+    [[UINavigationBar appearance] setBarTintColor:[UIColor colorWithRed:0.33 green:0.67 blue:0.93 alpha:1]];
+    [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];
+
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
-    self.window.rootViewController = [[LoginViewController alloc] init];
+    User *currentUser = [User currentUser];
+    if (currentUser == nil) {
+        self.window.rootViewController = [[LoginViewController alloc] init];
+    } else {
+        TimelineViewController *vc = [[TimelineViewController alloc] init];
+        UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:vc];
+        nvc.navigationBar.translucent = NO;
+        self.window.rootViewController = nvc;
+    }
 
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
