@@ -12,6 +12,8 @@
 #import "TweetDetailViewController.h"
 #import "LoginViewController.h"
 #import <MBProgressHUD.h>
+#import <UIScrollView+SVPullToRefresh.h>
+#import <UIScrollView+SVInfiniteScrolling.h>
 
 @interface TimelineViewController ()
 
@@ -37,6 +39,8 @@
     return self;
 }
 
+#pragma mark - UIViewController
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -48,14 +52,25 @@
     [self.tableView registerNib:businessCellNib forCellReuseIdentifier:@"TweetCell"];
     self.prototypeCell = [self.tableView dequeueReusableCellWithIdentifier:@"TweetCell"];
 
-    // init the refresh control
-    UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
-    [refreshControl addTarget:self action:@selector(onRefreshControl:) forControlEvents:UIControlEventValueChanged];
-    [self.tableView addSubview:refreshControl];
+    // init pull to refresh
+    [self.tableView addPullToRefreshWithActionHandler:^{
+        [self loadNewTweetsWithCompletionHandler:^{
+            [self.tableView.pullToRefreshView stopAnimating];
+        }];
+    }];
 
-    // fetch the tweets
+    // init infinite scroll
+    [self.tableView addInfiniteScrollingWithActionHandler:^{
+        // append data to data source, insert new cells at the end of table view
+        // call [tableView.infiniteScrollingView stopAnimating] when done
+        [self loadMoreTweetsWithCompletionHandler:^{
+            [self.tableView.infiniteScrollingView stopAnimating];
+        }];
+    }];
+
+    // fetch the initial tweets
     [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    [self loadTweetsWithCompletionHandler:^{
+    [self loadInitialTweetsWithCompletionHandler:^{
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     }];
 }
@@ -65,6 +80,8 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+#pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.tweets.count;
@@ -87,6 +104,8 @@
     return 112; // height of a 4-line non-retweeted tweet
 }
 
+#pragma mark - UITableViewDelegate
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
     
@@ -95,11 +114,15 @@
     [self.navigationController pushViewController:vc animated:YES];
 }
 
+#pragma mark - ComposeTweetViewControllerDelegate
+
 - (void)didPostTweet:(Tweet *)tweet {
     NSArray *temp = @[tweet];
     self.tweets = [temp arrayByAddingObjectsFromArray:self.tweets];
     [self.tableView reloadData];
 }
+
+#pragma mark - event handlers
 
 - (void)onSignOutButton {
     [[TwitterClient instance] logout];
@@ -114,17 +137,56 @@
     [self presentViewController:nvc animated:YES completion:nil];
 }
 
-- (void)onRefreshControl:(UIRefreshControl *)refreshControl
-{
-    [self loadTweetsWithCompletionHandler:^{
-        [refreshControl endRefreshing];
-    }];
-}
+#pragma mark - network requests
 
-- (void)loadTweetsWithCompletionHandler:(void (^)(void))completionHandler {
+- (void)loadInitialTweetsWithCompletionHandler:(void (^)(void))completionHandler {
     [[TwitterClient instance] homeTimelineWithSuccess:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
         self.tweets = tweets;
         [self.tableView reloadData];
+        completionHandler();
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        // TODO: show network error view
+        completionHandler();
+    }];
+}
+
+- (void)loadNewTweetsWithCompletionHandler:(void (^)(void))completionHandler {
+    [[TwitterClient instance] homeTimelineSinceTweetWithIdStr:((Tweet *)[self.tweets firstObject]).idStr success:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
+        if (tweets.count > 0) {
+            // prepend the new tweets to the data
+            self.tweets = [tweets arrayByAddingObjectsFromArray:self.tweets];
+
+            // animate the new rows in
+            NSMutableArray *newIndexPaths = [NSMutableArray array];
+            for (int i = 0; i < tweets.count; i++) {
+                [newIndexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+            }
+            [self.tableView insertRowsAtIndexPaths:newIndexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
+        completionHandler();
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        // TODO: show network error view
+        completionHandler();
+    }];
+}
+
+- (void)loadMoreTweetsWithCompletionHandler:(void (^)(void))completionHandler {
+    NSString *lastTweetIdStr = ((Tweet *)[self.tweets lastObject]).idStr;
+    long long maxIdToLoad = [lastTweetIdStr longLongValue] - 1;
+
+    [[TwitterClient instance] homeTimelineWithMaxTweetIdStr:[@(maxIdToLoad) stringValue] success:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
+        if (tweets.count > 0) {
+            // append the new tweets to the data
+            int prevNumTweets = self.tweets.count;
+            self.tweets = [self.tweets arrayByAddingObjectsFromArray:tweets];
+
+            // animate the new rows in
+            NSMutableArray *newIndexPaths = [NSMutableArray array];
+            for (int i = prevNumTweets; i < self.tweets.count; i++) {
+                [newIndexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+            }
+            [self.tableView insertRowsAtIndexPaths:newIndexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
         completionHandler();
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         // TODO: show network error view

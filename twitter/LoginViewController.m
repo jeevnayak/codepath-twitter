@@ -27,6 +27,12 @@
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - UIViewController
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -39,9 +45,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+#pragma mark - event handlers
 
 - (IBAction)onLoginButton:(id)sender {
     [[TwitterClient instance] startLogin];

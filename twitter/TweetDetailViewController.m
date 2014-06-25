@@ -43,6 +43,8 @@ NSInteger const kTweetDetailTopPaddingWithRetweet = 32;
     return self;
 }
 
+#pragma mark - UIViewController
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -77,6 +79,8 @@ NSInteger const kTweetDetailTopPaddingWithRetweet = 32;
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+#pragma mark - event handlers
 
 - (void)onReplyButton {
     ComposeTweetViewController *vc = [[ComposeTweetViewController alloc] init];

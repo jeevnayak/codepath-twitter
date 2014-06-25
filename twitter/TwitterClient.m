@@ -10,8 +10,6 @@
 #import "User.h"
 #import <MTLJSONAdapter.h>
 
-static NSString * const kLoginCompleteNotificationName = @"LoginCompleteNotification";
-
 @implementation TwitterClient
 
 + (TwitterClient *)instance {
@@ -47,7 +45,7 @@ static NSString * const kLoginCompleteNotificationName = @"LoginCompleteNotifica
                                [self currentUserWithSuccess:^(AFHTTPRequestOperation *operation, User *currentUser) {
                                    // set the current user and notify the UI
                                    [User setCurrentUser:currentUser];
-                                   [[NSNotificationCenter defaultCenter] postNotificationName:kLoginCompleteNotificationName object:self];
+                                   [[NSNotificationCenter defaultCenter] postNotificationName:@"LoginCompleteNotification" object:self];
                                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                    // TODO: notify UI
                                    NSLog(@"failed user info");
@@ -72,6 +70,20 @@ static NSString * const kLoginCompleteNotificationName = @"LoginCompleteNotifica
     } failure:failure];
 }
 
+- (void)homeTimelineSinceTweetWithIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self GET:@"1.1/statuses/home_timeline.json" parameters:@{@"since_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSArray *tweets = [MTLJSONAdapter modelsOfClass:[Tweet class] fromJSONArray:responseObject error:nil];
+        success(operation, tweets);
+    } failure:failure];
+}
+
+- (void)homeTimelineWithMaxTweetIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self GET:@"1.1/statuses/home_timeline.json" parameters:@{@"max_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSArray *tweets = [MTLJSONAdapter modelsOfClass:[Tweet class] fromJSONArray:responseObject error:nil];
+        success(operation, tweets);
+    } failure:failure];
+}
+
 - (void)postTweet:(NSString *)tweetText success:(void (^)(AFHTTPRequestOperation *operation, Tweet *tweet))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
     [self POST:@"1.1/statuses/update.json" parameters:@{@"status": tweetText} success:^(AFHTTPRequestOperation *operation, id responseObject) {
         Tweet *tweet = [MTLJSONAdapter modelOfClass:[Tweet class] fromJSONDictionary:responseObject error:nil];
@@ -82,7 +94,6 @@ static NSString * const kLoginCompleteNotificationName = @"LoginCompleteNotifica
 - (void)postReply:(NSString *)tweetText toTweetWithIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, Tweet *tweet))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
     NSLog(@"replying to %@", idStr);
     [self POST:@"1.1/statuses/update.json" parameters:@{@"status": tweetText, @"in_reply_to_status_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"resp %@", responseObject);
         Tweet *tweet = [MTLJSONAdapter modelOfClass:[Tweet class] fromJSONDictionary:responseObject error:nil];
         success(operation, tweet);
     } failure:failure];
