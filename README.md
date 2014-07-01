@@ -4,6 +4,7 @@ Twitter
 A simple iOS 7 Twitter client. It allows you to view your home timeline (with infinite scrolling), compose new tweets, view/reply to existing tweets, and view user profiles.
 
 Time spent on project 3: ~10 hours
+
 Time spent on project 4: ~8 hours
 
 Completed user stories
