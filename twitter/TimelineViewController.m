@@ -7,10 +7,9 @@
 //
 
 #import "TimelineViewController.h"
-#import "TwitterClient.h"
-#import "TweetCell.h"
 #import "TweetDetailViewController.h"
 #import "LoginViewController.h"
+#import "ProfileViewController.h"
 #import <MBProgressHUD.h>
 #import <UIScrollView+SVPullToRefresh.h>
 #import <UIScrollView+SVInfiniteScrolling.h>
@@ -30,10 +29,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.title = @"Home";
-
         // init the nav bar items
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onSignOutButton)];
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"New" style:UIBarButtonItemStylePlain target:self action:@selector(onNewButton)];
     }
     return self;
@@ -45,11 +41,23 @@
 {
     [super viewDidLoad];
 
+    // set the title
+    switch (self.type) {
+        case TimelineTypeHome:
+            self.title = @"Home";
+            break;
+        case TimelineTypeMentions:
+            self.title = @"Mentions";
+            break;
+        default:
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"invalid type" userInfo:nil];
+    }
+
     // init the table view
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
-    UINib *businessCellNib = [UINib nibWithNibName:@"TweetCell" bundle:nil];
-    [self.tableView registerNib:businessCellNib forCellReuseIdentifier:@"TweetCell"];
+    UINib *tweetCellNib = [UINib nibWithNibName:@"TweetCell" bundle:nil];
+    [self.tableView registerNib:tweetCellNib forCellReuseIdentifier:@"TweetCell"];
     self.prototypeCell = [self.tableView dequeueReusableCellWithIdentifier:@"TweetCell"];
 
     // init pull to refresh
@@ -61,8 +69,6 @@
 
     // init infinite scroll
     [self.tableView addInfiniteScrollingWithActionHandler:^{
-        // append data to data source, insert new cells at the end of table view
-        // call [tableView.infiniteScrollingView stopAnimating] when done
         [self loadMoreTweetsWithCompletionHandler:^{
             [self.tableView.infiniteScrollingView stopAnimating];
         }];
@@ -90,6 +96,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     TweetCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TweetCell" forIndexPath:indexPath];
     cell.tweet = self.tweets[indexPath.row];
+    cell.delegate = self;
     return cell;
 }
 
@@ -114,6 +121,14 @@
     [self.navigationController pushViewController:vc animated:YES];
 }
 
+#pragma mark - TweetCellDelegate
+
+- (void)didTapProfileImage:(TweetCell *)cell {
+    ProfileViewController *vc = [[ProfileViewController alloc] init];
+    vc.user = cell.tweet.user;
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
 #pragma mark - ComposeTweetViewControllerDelegate
 
 - (void)didPostTweet:(Tweet *)tweet {
@@ -123,12 +138,6 @@
 }
 
 #pragma mark - event handlers
-
-- (void)onSignOutButton {
-    [[TwitterClient instance] logout];
-    LoginViewController *vc = [[LoginViewController alloc] init];
-    [self presentViewController:vc animated:YES completion:nil];
-}
 
 - (void)onNewButton {
     ComposeTweetViewController *vc = [[ComposeTweetViewController alloc] init];
@@ -140,7 +149,7 @@
 #pragma mark - network requests
 
 - (void)loadInitialTweetsWithCompletionHandler:(void (^)(void))completionHandler {
-    [[TwitterClient instance] homeTimelineWithSuccess:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
+    [[TwitterClient instance] timelineWithType:self.type success:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
         self.tweets = tweets;
         [self.tableView reloadData];
         completionHandler();
@@ -151,7 +160,7 @@
 }
 
 - (void)loadNewTweetsWithCompletionHandler:(void (^)(void))completionHandler {
-    [[TwitterClient instance] homeTimelineSinceTweetWithIdStr:((Tweet *)[self.tweets firstObject]).idStr success:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
+    [[TwitterClient instance] timelineWithType:self.type sinceTweetWithIdStr:((Tweet *)[self.tweets firstObject]).idStr success:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
         if (tweets.count > 0) {
             // prepend the new tweets to the data
             self.tweets = [tweets arrayByAddingObjectsFromArray:self.tweets];
@@ -174,7 +183,7 @@
     NSString *lastTweetIdStr = ((Tweet *)[self.tweets lastObject]).idStr;
     long long maxIdToLoad = [lastTweetIdStr longLongValue] - 1;
 
-    [[TwitterClient instance] homeTimelineWithMaxTweetIdStr:[@(maxIdToLoad) stringValue] success:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
+    [[TwitterClient instance] timelineWithType:self.type maxTweetIdStr:[@(maxIdToLoad) stringValue] success:^(AFHTTPRequestOperation *operation, NSArray *tweets) {
         if (tweets.count > 0) {
             // append the new tweets to the data
             int prevNumTweets = self.tweets.count;

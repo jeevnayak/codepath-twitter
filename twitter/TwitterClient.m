@@ -63,22 +63,40 @@
     [User setCurrentUser:nil];
 }
 
-- (void)homeTimelineWithSuccess:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
-    [self GET:@"1.1/statuses/home_timeline.json" parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+- (void)timelineWithType:(TimelineType)type success:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self GET:[self endpointForTimelineType:type] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSArray *tweets = [MTLJSONAdapter modelsOfClass:[Tweet class] fromJSONArray:responseObject error:nil];
         success(operation, tweets);
     } failure:failure];
 }
 
-- (void)homeTimelineSinceTweetWithIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
-    [self GET:@"1.1/statuses/home_timeline.json" parameters:@{@"since_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+- (void)timelineWithType:(TimelineType)type sinceTweetWithIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self GET:[self endpointForTimelineType:type] parameters:@{@"since_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSArray *tweets = [MTLJSONAdapter modelsOfClass:[Tweet class] fromJSONArray:responseObject error:nil];
         success(operation, tweets);
     } failure:failure];
 }
 
-- (void)homeTimelineWithMaxTweetIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
-    [self GET:@"1.1/statuses/home_timeline.json" parameters:@{@"max_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+- (void)timelineWithType:(TimelineType)type maxTweetIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self GET:[self endpointForTimelineType:type] parameters:@{@"max_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSArray *tweets = [MTLJSONAdapter modelsOfClass:[Tweet class] fromJSONArray:responseObject error:nil];
+        success(operation, tweets);
+    } failure:failure];
+}
+
+- (NSString *)endpointForTimelineType:(TimelineType)type {
+    switch (type) {
+        case TimelineTypeHome:
+            return @"1.1/statuses/home_timeline.json";
+        case TimelineTypeMentions:
+            return @"1.1/statuses/mentions_timeline.json";
+        default:
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"invalid type" userInfo:nil];
+    }
+}
+
+- (void)timelineForUser:(User *)user success:(void (^)(AFHTTPRequestOperation *operation, NSArray *tweets))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    [self GET:@"1.1/statuses/user_timeline.json" parameters:@{@"screen_name": user.screenName} success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSArray *tweets = [MTLJSONAdapter modelsOfClass:[Tweet class] fromJSONArray:responseObject error:nil];
         success(operation, tweets);
     } failure:failure];
@@ -92,7 +110,6 @@
 }
 
 - (void)postReply:(NSString *)tweetText toTweetWithIdStr:(NSString *)idStr success:(void (^)(AFHTTPRequestOperation *operation, Tweet *tweet))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
-    NSLog(@"replying to %@", idStr);
     [self POST:@"1.1/statuses/update.json" parameters:@{@"status": tweetText, @"in_reply_to_status_id": idStr} success:^(AFHTTPRequestOperation *operation, id responseObject) {
         Tweet *tweet = [MTLJSONAdapter modelOfClass:[Tweet class] fromJSONDictionary:responseObject error:nil];
         success(operation, tweet);

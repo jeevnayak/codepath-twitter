@@ -45,9 +45,20 @@ static User *_currentUser = nil;
 + (NSDictionary *)JSONKeyPathsByPropertyKey
 {
     return @{
+             @"profileBannerUrl": @"profile_banner_url",
              @"profileImageUrl": @"profile_image_url",
              @"screenName": @"screen_name",
+             @"numTweets": @"statuses_count",
+             @"numFollowing": @"friends_count",
+             @"numFollowers": @"followers_count",
              };
+}
+
++ (NSValueTransformer *)profileBannerUrlJSONTransformer
+{
+    return [MTLValueTransformer transformerWithBlock:^(NSString *urlString) {
+        return [NSURL URLWithString:urlString];
+    }];
 }
 
 + (NSValueTransformer *)profileImageUrlJSONTransformer

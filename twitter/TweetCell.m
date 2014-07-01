@@ -30,7 +30,8 @@ NSInteger const kTweetCellTopPaddingWithRetweet = 28;
 
 - (void)awakeFromNib
 {
-    // Initialization code
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTapProfileImage)];
+    [self.userProfileImageView addGestureRecognizer:tapGestureRecognizer];
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -69,6 +70,10 @@ NSInteger const kTweetCellTopPaddingWithRetweet = 28;
     self.userScreenNameLabel.text = [NSString stringWithFormat:@"@%@", tweetToDisplay.user.screenName];
     self.createdAtLabel.text = tweetToDisplay.createdAt.shortTimeAgoSinceNow;
     self.tweetTextLabel.text = tweetToDisplay.text;
+}
+
+- (void)onTapProfileImage {
+    [self.delegate didTapProfileImage:self];
 }
 
 @end

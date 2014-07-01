@@ -8,7 +8,7 @@
 
 #import "LoginViewController.h"
 #import "TwitterClient.h"
-#import "TimelineViewController.h"
+#import "MainViewController.h"
 
 @interface LoginViewController ()
 
@@ -52,10 +52,7 @@
 }
 
 - (void)onLoginComplete {
-    TimelineViewController *vc = [[TimelineViewController alloc] init];
-    UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:vc];
-    nvc.navigationBar.translucent = NO;
-    [self presentViewController:nvc animated:YES completion:nil];
+    [self presentViewController:[[MainViewController alloc] init] animated:YES completion:nil];
 }
 
 @end

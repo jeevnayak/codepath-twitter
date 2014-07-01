@@ -14,8 +14,12 @@
 + (User *)currentUser;
 + (void)setCurrentUser:(User *)user;
 
+@property (nonatomic, copy, readonly) NSURL *profileBannerUrl;
 @property (nonatomic, copy, readonly) NSURL *profileImageUrl;
 @property (nonatomic, copy, readonly) NSString *name;
 @property (nonatomic, copy, readonly) NSString *screenName;
+@property (nonatomic, readonly) NSInteger numTweets;
+@property (nonatomic, readonly) NSInteger numFollowing;
+@property (nonatomic, readonly) NSInteger numFollowers;
 
 @end

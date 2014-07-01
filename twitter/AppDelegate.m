@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "LoginViewController.h"
-#import "TimelineViewController.h"
+#import "MainViewController.h"
 #import "TwitterClient.h"
 #import "NSURL+DictionaryFromQueryString.h"
 #import "User.h"
@@ -29,10 +29,7 @@
     if (currentUser == nil) {
         self.window.rootViewController = [[LoginViewController alloc] init];
     } else {
-        TimelineViewController *vc = [[TimelineViewController alloc] init];
-        UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:vc];
-        nvc.navigationBar.translucent = NO;
-        self.window.rootViewController = nvc;
+        self.window.rootViewController = [[MainViewController alloc] init];
     }
 
     self.window.backgroundColor = [UIColor whiteColor];
